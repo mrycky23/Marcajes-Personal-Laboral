@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Control de Asistencia</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-dark bg-primary">
+    <div class="container-fluid">
+      <span class="navbar-brand">📍 Control de Asistencia</span>
+      <button class="btn btn-outline-light" onclick="logout()">Cerrar Sesión</button>
+    </div>
+  </nav>
+
+  <div class="container my-4">
+    <div class="d-flex justify-content-center gap-3 mb-4">
+      <button class="btn btn-success btn-lg shadow" onclick="marcar('entrada')">
+        <i class="bi bi-box-arrow-in-right"></i> Marcar Entrada
+      </button>
+      <button class="btn btn-danger btn-lg shadow" onclick="marcar('salida')">
+        <i class="bi bi-box-arrow-right"></i> Marcar Salida
+      </button>
+    </div>
+
+    <h4>📜 Historial</h4>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Tipo</th>
+          <th>Fecha/Hora</th>
+          <th>Ubicación</th>
+        </tr>
+      </thead>
+      <tbody id="tablaMarcajes"></tbody>
+    </table>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

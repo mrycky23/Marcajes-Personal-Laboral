@@ -1,0 +1,19 @@
+{
+    "name": "usuario/registros-personal-entrada-salida",
+    "autoload": {
+        "psr-4": {
+            "Usuario\\RegistrosPersonalEntradaSalida\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "mrycky23",
+            "email": "rycky_jvm@outlook.com"
+        }
+    ],
+    "require": {
+        "slim/slim": "4.10",
+        "slim/psr7": "^1.7",
+        "firebase/php-jwt": "^6.11"
+    }
+}
