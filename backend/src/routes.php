@@ -60,34 +60,46 @@ return function (App $app, PDO $pdo) {
         $response->getBody()->write(json_encode(["error" => "Credenciales inválidas"]));
         return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
     });
+// ---------------- MARCAJES ----------------
+$app->get('/marcajes', function (Request $request, Response $response) use ($pdo) {
+    $stmt = $pdo->query("SELECT * FROM marcajes ORDER BY marcado_en DESC");
+    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // ---------------- MARCAJES ----------------
-    $app->get('/marcajes', function (Request $request, Response $response) use ($pdo) {
-        $stmt = $pdo->query("SELECT * FROM marcajes ORDER BY marcado_en DESC");
-        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $response->getBody()->write(json_encode($data));
+    return $response->withHeader('Content-Type', 'application/json');
+});
 
-        $response->getBody()->write(json_encode($data));
-        return $response->withHeader('Content-Type', 'application/json');
-    });
+$app->post('/marcajes', function (Request $request, Response $response) use ($pdo) {
+    $data = $request->getParsedBody();
 
-    $app->post('/marcajes', function (Request $request, Response $response) use ($pdo) {
-        $data = $request->getParsedBody();
+    // Validar que el tipo sea "in" o "out"
+    $tipo = $data['tipo'] ?? null;
+    if (!in_array($tipo, ['IN', 'OUT'])) {
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'El tipo debe ser "in" o "out"'
+        ]));
+        return $response->withHeader('Content-Type', 'application/json')
+                        ->withStatus(400);
+    }
 
-        $sql = "INSERT INTO marcajes (usuario_id, tipo, marcado_en, lat, lng, precision_m, fuente, ip)
-                VALUES (:usuario_id, :tipo, NOW(3), :lat, :lng, :precision_m, :fuente, :ip)";
+    $sql = "INSERT INTO marcajes (usuario_id, tipo, marcado_en, lat, lng, precision_m, fuente, ip)
+            VALUES (:usuario_id, :tipo, NOW(3), :lat, :lng, :precision_m, :fuente, :ip)";
 
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            ':usuario_id' => $data['usuario_id'],
-            ':tipo' => $data['tipo'],
-            ':lat' => $data['lat'],
-            ':lng' => $data['lng'],
-            ':precision_m' => $data['precision_m'] ?? null,
-            ':fuente' => $data['fuente'] ?? 'APP',
-            ':ip' => $_SERVER['REMOTE_ADDR'] ?? null
-        ]);
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        ':usuario_id' => $data['usuario_id'],
+        ':tipo' => $tipo,
+        ':lat' => $data['lat'],
+        ':lng' => $data['lng'],
+        ':precision_m' => $data['precision_m'] ?? null,
+        ':fuente' => $data['fuente'] ?? 'APP',
+        ':ip' => $_SERVER['REMOTE_ADDR'] ?? null
+    ]);
 
-        $response->getBody()->write(json_encode(['success' => true]));
-        return $response->withHeader('Content-Type', 'application/json');
-    });
+    $response->getBody()->write(json_encode(['success' => true]));
+    return $response->withHeader('Content-Type', 'application/json');
+});
+
+
 };
