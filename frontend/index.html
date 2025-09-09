@@ -25,12 +25,17 @@
   </div>
 
   <script>
-    const API_URL = "http://localhost:8000"; // tu backend Slim
+    const API_URL = "http://localhost:8000"; // Backend Slim
 
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!email || !password) {
+        Swal.fire("⚠️ Campos vacíos", "Por favor ingresa correo y contraseña", "warning");
+        return;
+      }
 
       try {
         const res = await fetch(`${API_URL}/usuarios/login`, {
@@ -45,9 +50,10 @@
           localStorage.setItem("token", data.token);
           Swal.fire("✅ Bienvenido", "Inicio de sesión exitoso", "success")
             .then(() => window.location.href = "dashboard.html");
-        } else if (data.error && data.error.includes("no encontrado")) {
+        } 
+        else if (res.status === 401) {
           Swal.fire({
-            title: "❌ Usuario no encontrado",
+            title: "❌ Usuario o contraseña incorrectos",
             text: "¿Deseas registrarte con este correo?",
             icon: "warning",
             showCancelButton: true,
@@ -58,11 +64,12 @@
               window.location.href = "register.html";
             }
           });
-        } else {
-          Swal.fire("⚠️ Error", data.error || "Credenciales inválidas", "error");
+        } 
+        else {
+          Swal.fire("⚠️ Error", data.error || "Ocurrió un problema", "error");
         }
       } catch (err) {
-        Swal.fire("⚠️ Error", "No se pudo conectar con el servidor", "warning");
+        Swal.fire("🚨 Error de conexión", "No se pudo conectar con el servidor", "error");
       }
     });
   </script>
