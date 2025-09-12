@@ -69,7 +69,7 @@ async function cargarMarcajes() {
   const tbody = document.getElementById("tablaMarcajes");
   tbody.innerHTML = data.map(m => `
     <tr>
-      <td>${m.usuario_id}</td>
+      <td>${m.usuario}</td>
       <td>${m.tipo}</td>
       <td>${m.marcado_en}</td>
       <td>${m.lat}, ${m.lng}</td>
@@ -80,5 +80,5 @@ async function cargarMarcajes() {
 // ---------------- LOGOUT ----------------
 function logout() {
   localStorage.removeItem("token");
-  window.location.href = "login.html";
+  window.location.href = "index.html";
 }

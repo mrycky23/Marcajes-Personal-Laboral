@@ -62,7 +62,13 @@ return function (App $app, PDO $pdo) {
     });
 // ---------------- MARCAJES ----------------
 $app->get('/marcajes', function (Request $request, Response $response) use ($pdo) {
-    $stmt = $pdo->query("SELECT * FROM marcajes ORDER BY marcado_en DESC");
+    // 🔹 Ahora se hace JOIN con usuarios para obtener el nombre
+    $sql = "SELECT m.id, u.nombre AS usuario, m.tipo, m.marcado_en, m.lat, m.lng, m.precision_m, m.fuente, m.ip
+            FROM marcajes m
+            JOIN usuarios u ON m.usuario_id = u.id
+            ORDER BY m.marcado_en DESC";
+
+    $stmt = $pdo->query($sql);
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $response->getBody()->write(json_encode($data));
@@ -72,12 +78,12 @@ $app->get('/marcajes', function (Request $request, Response $response) use ($pdo
 $app->post('/marcajes', function (Request $request, Response $response) use ($pdo) {
     $data = $request->getParsedBody();
 
-    // Validar que el tipo sea "in" o "out"
-    $tipo = $data['tipo'] ?? null;
+    // 🔹 Validar tipo (mayúsculas obligatorias)
+    $tipo = strtoupper($data['tipo'] ?? '');
     if (!in_array($tipo, ['IN', 'OUT'])) {
         $response->getBody()->write(json_encode([
             'success' => false,
-            'error' => 'El tipo debe ser "in" o "out"'
+            'error' => 'El tipo debe ser "IN" o "OUT"'
         ]));
         return $response->withHeader('Content-Type', 'application/json')
                         ->withStatus(400);
@@ -88,18 +94,19 @@ $app->post('/marcajes', function (Request $request, Response $response) use ($pd
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
-        ':usuario_id' => $data['usuario_id'],
-        ':tipo' => $tipo,
-        ':lat' => $data['lat'],
-        ':lng' => $data['lng'],
-        ':precision_m' => $data['precision_m'] ?? null,
-        ':fuente' => $data['fuente'] ?? 'APP',
-        ':ip' => $_SERVER['REMOTE_ADDR'] ?? null
+        ':usuario_id'   => $data['usuario_id'],
+        ':tipo'         => $tipo,
+        ':lat'          => $data['lat'] ?? null,
+        ':lng'          => $data['lng'] ?? null,
+        ':precision_m'  => $data['precision_m'] ?? null,
+        ':fuente'       => $data['fuente'] ?? 'APP',
+        ':ip'           => $_SERVER['REMOTE_ADDR'] ?? null
     ]);
 
     $response->getBody()->write(json_encode(['success' => true]));
     return $response->withHeader('Content-Type', 'application/json');
 });
+
 
 
 };
